@@ -23,8 +23,8 @@
                             $("#fail").fadeIn();
                         }
                         //Formatting obtained Json string
+                        $(".h1").append('Click on the Tabs to view the Weather For Particular Days<br />' + weaForecast.city.name + ', ' + weaForecast.city.country).fadeIn();
                         jQuery.each(weaForecast.list, function (i, val) {
-                            $(".h1").fadeIn();
                             $("#bg").css("height","145em");
                             var a = new Date(val.dt * 1000);
                             var date = a.getDate();
