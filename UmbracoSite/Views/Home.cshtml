@@ -1,0 +1,83 @@
+﻿@inherits Umbraco.Web.Mvc.UmbracoTemplatePage
+@{
+    Layout = "Master.cshtml";
+    <script>
+        $(document).ready(function () {
+            $("#findMyWeather").click(function () {
+                event.preventDefault();
+                var nd = @(Model.Content.GetPropertyValue<int>("nDays"))
+                cityval = $("#city").val();
+                $("#accordion").empty();
+                $("#success").empty();
+
+                $.ajax({
+                    url: 'http://api.openweathermap.org/data/2.5/forecast/daily?q=' + cityval + '&units=metric&cnt='+ nd +'&APPID:ac809e7b92163341464ecf1ed38f2c91',
+                    type: 'GET',
+                    success: function (data) {
+                        temp = JSON.stringify(data);
+                        weaForecast = JSON.parse(temp);
+                        $("#success").append('<h1>Hard coded API request result: Json file is displayed</h1>'+ temp ).fadeIn();
+
+                        //error function
+                        if (weaForecast == "{\"message\":\"\",\"cod\":\"404\"}\n") {
+                            $("#fail").fadeIn();
+                        }
+                        //Formatting obtained Json string
+                        jQuery.each(weaForecast.list, function (i, val) {
+                            $(".h1").fadeIn();
+                            $("#bg").css("height","145em");
+                            var a = new Date(val.dt * 1000);
+                            var date = a.getDate();
+                            // hours part from the timestamp
+                            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                            var year = a.getFullYear();
+                            var month = months[a.getMonth()];
+                            var time = + date +', ' + month + ' ' + year +'' ;
+                            $("#accordion").append('<div class="panel panel-default"> <div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#accordion" href="#' + i + '"><h2><span class="label label-default">' + time + '</span></h2></a></h4></div><div id="' + i + '" class="panel-collapse collapse"><div class="panel-body"><tr><td><h2><span class="label label-primary">Min temperature: ' + val.temp.min + '°C</span></h2></td><td><h2><span class="label label-danger">Max temperature: ' + val.temp.max + '°C</span></h2></td><td><h2><span class="label label-warning">Average Temperature: ' + val.temp.day + '°C</span></h2></td><td><h2><span class="label label-primary">Cloud Description: ' + val.weather[0].description + '</span><h2></td></div></div></div>');
+
+                        });
+                    },
+                    error: function (e) {
+                        //called when there is an error
+                        $("#fail").fadeIn();
+                    }
+
+                });
+
+            });
+
+        });
+
+    </script>
+}
+
+<div>
+    <div class="jumbotron">
+    <h1>@(Model.Content.GetPropertyValue<string>("title"))</h1>
+    @Html.Raw(Model.Content.GetPropertyValue<string>("bodyContent"))
+        </div>
+    <h1>Type A City Name In The Search Box</h1>
+    <form>
+        <div class="form-group">
+            <input type="text" class="form-control" name="city" id="city" placeholder="Eg.Wellington,NZ or Dunedin,NZ.." />
+        </div>
+        <button id="findMyWeather" class="btn btn-success btn-lg">Find My Weather</button>
+    </form>
+</div>
+
+<div style="margin-top:2em">
+    <div id="success" class="alert alert-success"></div>
+    <div id="fail" class="alert alert-danger">
+        <p> Could not find weather data for that city. Please try again.</p>
+    </div>
+
+    <h1 class="h1 panel-heading" >Click on the Tabs to view the Weather For Particular Days</h1>
+
+    <div class="panel-group" id="accordion">
+     </div>
+ </div>
+
+
+
+
+
